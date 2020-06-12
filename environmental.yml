@@ -3,6 +3,7 @@ channels:
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
+  - attrs=19.3.0=py_0
   - backcall=0.1.0=py38_0
   - ca-certificates=2020.1.1=0
   - certifi=2020.4.5.1=py38_0
@@ -17,16 +18,22 @@ dependencies:
   - libgcc-ng=9.1.0=hdf63c60_0
   - libgfortran-ng=7.3.0=hdf63c60_0
   - libstdcxx-ng=9.1.0=hdf63c60_0
+  - more-itertools=8.3.0=py_0
   - ncurses=6.2=he6710b0_1
   - openssl=1.1.1g=h7b6447c_0
+  - packaging=20.3=py_0
   - parso=0.7.0=py_0
   - pexpect=4.8.0=py38_0
   - pickleshare=0.7.5=py38_1000
   - pip=20.0.2=py38_3
+  - pluggy=0.13.1=py38_0
   - prompt-toolkit=3.0.5=py_0
   - prompt_toolkit=3.0.5=0
   - ptyprocess=0.6.0=py38_0
+  - py=1.8.1=py_0
   - pygments=2.6.1=py_0
+  - pyparsing=2.4.7=py_0
+  - pytest=5.4.2=py38_0
   - python=3.8.3=hcff3b4d_0
   - readline=8.0=h7b6447c_0
   - setuptools=47.1.1=py38_0
