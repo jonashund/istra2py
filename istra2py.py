@@ -32,6 +32,7 @@ class Reader:
         self.paths_files = [os.path.join(path_dir, name) for name in self.file_names]
 
     def list_available_keys(self, file_index=0):
+        print('Available keys are:')
         with h5py.File(self.paths_files[file_index], "r") as first_file:
             d = {key: [k for k in first_file[key].keys()] for key in first_file.keys()}
             pprint.pprint(d)
@@ -113,6 +114,6 @@ class Reader:
 
 if __name__ == "__main__":
     r = Reader("data")
-    # r.list_available_keys()
+    r.list_available_keys()
     r.get_basics()
 
