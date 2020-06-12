@@ -11,13 +11,13 @@ sys.path.append(os.path.join(".."))
 import istra2py
 
 
-##########################################
-# Tests
+##############################################
 
-class Test_Dummy:
-    def test_foo(self,):
-        assert True
+
+class Test_core:
+    def test_init(self,):
+        istra2py.Reader("data")
 
 
 if __name__ == "__main__":
-    Test_Dummy().test_foo()
+    Test_core().test_init()
