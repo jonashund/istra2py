@@ -18,18 +18,8 @@ class Reader:
         self._file_ending = file_ending
 
         self._file_names_unsorted = self._find_files_in_dir()
-
-        print("Found the following files")
-        pprint.pprint(self._file_names_unsorted)
-        print()
-
-        self.file_names = self._sort_file_names()
-
-        print("Sorted files are")
-        pprint.pprint(self.file_names)
-        print()
-
-        self.paths_files = [os.path.join(path_dir, name) for name in self.file_names]
+        self._file_names = self._sort_file_names()
+        self.paths_files = [os.path.join(path_dir, name) for name in self._file_names]
 
     def _list_available_keys(self, file_index=0):
         with h5py.File(self.paths_files[file_index], "r") as first_file:
@@ -87,14 +77,25 @@ class Reader:
 
             hdf5.close()
 
-    def _sort_file_names(self,):
+    def _sort_file_names(self, verbose=True):
         # Find numbers directly before file ending
         regex = re.compile(r"(\d+)" + self._file_ending)
         numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
         ordered_indices = np.array(numbers).argsort()
-        return np.array(self._file_names_unsorted)[ordered_indices].tolist()
 
-    def _find_files_in_dir(self,):
+        file_names_sorted = np.array(self._file_names_unsorted)[
+            ordered_indices
+        ].tolist()
+
+        if verbose:
+            print("Sorted files are")
+            pprint.pprint(file_names_sorted)
+            print()
+
+        return file_names_sorted
+
+    def _find_files_in_dir(self, verbose=True):
+
         names = []
         for file in os.listdir(self.path_dir):
             if file.endswith(self._file_ending):
@@ -108,6 +109,11 @@ class Reader:
                 )
             )
 
+        if verbose:
+            print("Found the following files")
+            pprint.pprint(names)
+            print()
+
         return names
 
 
@@ -116,25 +122,3 @@ if __name__ == "__main__":
     # r._list_available_keys()
     r.read()
 
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots(1, 1, figsize=(45, 45))
-
-    plotable_slice = np.s_[:, 1:-2, 1:-2, :]
-
-    x = r.x[plotable_slice][0, :, :, 0]
-    y = r.x[plotable_slice][0, :, :, 1]
-    val = r.x[plotable_slice][-1, :, :, 1]
-
-    cs = ax.contourf(x, y, val, cmap="viridis",)
-
-    # Plot grid based on discretization
-    ax.plot(
-        x, y, "k-", lw=0.5, alpha=0.5,
-    )
-    ax.plot(
-        x.T, y.T, "k-", lw=0.5, alpha=0.5,
-    )
-
-    # ax.grid(c="k", ls="-", alpha=0.5)
-    fig.colorbar(cs, ax=ax, shrink=0.9, format="%.0e")
