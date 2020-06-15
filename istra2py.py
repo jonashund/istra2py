@@ -119,6 +119,5 @@ class Reader:
 
 if __name__ == "__main__":
     r = Reader("data")
-    # r._list_available_keys()
     r.read()
 
