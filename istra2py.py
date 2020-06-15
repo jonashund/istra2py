@@ -15,30 +15,19 @@ class Istra2pyException(Exception):
 class Reader:
     def __init__(self, path_dir, file_ending=".hdf5"):
         self.path_dir = path_dir
-        self.file_ending = file_ending
+        self._file_ending = file_ending
 
         self._file_names_unsorted = self._find_files_in_dir()
+        self._file_names = self._sort_file_names()
+        self.paths_files = [os.path.join(path_dir, name) for name in self._file_names]
 
-        print("Found the following files")
-        pprint.pprint(self._file_names_unsorted)
-        print()
-
-        self.file_names = self._sort_file_names()
-
-        print("Sorted files are")
-        pprint.pprint(self.file_names)
-        print()
-
-        self.paths_files = [os.path.join(path_dir, name) for name in self.file_names]
-
-    def list_available_keys(self, file_index=0):
-        print('Available keys are:')
+    def _list_available_keys(self, file_index=0):
         with h5py.File(self.paths_files[file_index], "r") as first_file:
             d = {key: [k for k in first_file[key].keys()] for key in first_file.keys()}
             pprint.pprint(d)
             return d
 
-    def get_basics(self,):
+    def read(self,):
 
         nbr_files = len(self.paths_files)
         with h5py.File(self.paths_files[0], "r") as first_file:
@@ -88,32 +77,47 @@ class Reader:
 
             hdf5.close()
 
-    def _sort_file_names(self,):
+    def _sort_file_names(self, verbose=True):
         # Find numbers directly before file ending
-        regex = re.compile(r"(\d+)" + self.file_ending)
+        regex = re.compile(r"(\d+)" + self._file_ending)
         numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
         ordered_indices = np.array(numbers).argsort()
-        return np.array(self._file_names_unsorted)[ordered_indices].tolist()
 
-    def _find_files_in_dir(self,):
+        file_names_sorted = np.array(self._file_names_unsorted)[
+            ordered_indices
+        ].tolist()
+
+        if verbose:
+            print("Sorted files are")
+            pprint.pprint(file_names_sorted)
+            print()
+
+        return file_names_sorted
+
+    def _find_files_in_dir(self, verbose=True):
+
         names = []
         for file in os.listdir(self.path_dir):
-            if file.endswith(self.file_ending):
+            if file.endswith(self._file_ending):
                 names.append(file)
         names.sort()
 
         if not names:
             raise Istra2pyException(
                 "No files with ending {} found in {}".format(
-                    self.file_ending, self.path_dir
+                    self._file_ending, self.path_dir
                 )
             )
+
+        if verbose:
+            print("Found the following files")
+            pprint.pprint(names)
+            print()
 
         return names
 
 
 if __name__ == "__main__":
     r = Reader("data")
-    r.list_available_keys()
-    r.get_basics()
+    r.read()
 
