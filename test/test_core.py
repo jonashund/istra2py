@@ -33,7 +33,7 @@ class Test_core:
             istra2py.EvaluationReader("data_empty")
 
     def test_list_available_keys(self, reader):
-        reader._list_available_keys()
+        reader.list_available_keys()
 
 
 if __name__ == "__main__":

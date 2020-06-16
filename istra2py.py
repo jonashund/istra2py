@@ -21,7 +21,9 @@ class ReaderDirectory:
         self._file_names = self._sort_file_names()
         self.paths_files = [os.path.join(path_dir, name) for name in self._file_names]
 
-    def _list_available_keys(self, file_index=0):
+        self.nbr_files = len(self.paths_files)
+
+    def list_available_keys(self, file_index=1):
         with h5py.File(self.paths_files[file_index], "r") as first_file:
             d = {key: [k for k in first_file[key].keys()] for key in first_file.keys()}
             pprint.pprint(d)
@@ -68,25 +70,63 @@ class ReaderDirectory:
 
 
 class Reader:
-    def __init__(self, path_dir_measurement=None, path_dir_evaluation=None):
-        if path_dir_measurement:
-            self.measurement = MeasurementReader(path_dir=path_dir_measurement).read()
+    def __init__(self, path_dir_acquisition=None, path_dir_evaluation=None):
+        if path_dir_acquisition:
+            self.acquisition = AcquisitionReader(path_dir=path_dir_acquisition).read()
         if path_dir_evaluation:
             self.evaluation = EvaluationReader(path_dir=path_dir_evaluation).read()
 
 
-class MeasurementReader(ReaderDirectory):
-    pass
+class AcquisitionReader(ReaderDirectory):
+    def read(self,):
+        key_main = "correlation_load_series_camera_1"
+        key_images = "camera_pos_1"
+        dtype_image = np.uint8
+
+        nbr_files = self.nbr_files
+        with h5py.File(self.paths_files[0], "r") as first_file:
+            nbr_pix_x, nbr_pix_y = first_file[key_main][key_images].shape
+
+        print("Extracted attributes:")
+        basics = {
+            "Traverse force": ".traverse_force",
+            "Traverse displacement": ".traverse_displ",
+            "Images": ".images",
+        }
+        pprint.pprint(basics)
+        print()
+
+        print("Indices of basics are: [nbr_files, nbr_x, nbr_y, nbr_components] with")
+        print("nbr_files = ", nbr_files)
+        print("nbr_pix_x = ", nbr_pix_x)
+        print("nbr_pix_y = ", nbr_pix_y)
+
+        self.traverse_force = np.zeros((nbr_files, 1), dtype=np.float64)
+        self.traverse_displ = np.zeros((nbr_files, 1), dtype=np.float64)
+        self.images = np.zeros((nbr_files, nbr_pix_x, nbr_pix_y), dtype=dtype_image)
+
+        for index_path, path in enumerate(self.paths_files):
+            hdf5 = h5py.File(path, "r")
+
+            analog = hdf5[key_main]["analog_channels"][0]
+            self.traverse_force[index_path, 0] = analog[0]  # Is this correct?
+            self.traverse_displ[index_path, 0] = analog[1]  # Is this correct?
+
+            image = hdf5[key_main][key_images]
+            self.images[index_path, :, :] = image
+
+            hdf5.close()
+        return self
 
 
 class EvaluationReader(ReaderDirectory):
     def read(self,):
+        nbr_files = self.nbr_files
 
-        nbr_files = len(self.paths_files)
         with h5py.File(self.paths_files[0], "r") as first_file:
             nbr_x, nbr_y = first_file["coordinates"]["coordinate_x"].shape
 
-        print("Processed basics are:")
+        print("Extracted attributes:")
         basics = {
             "Traverse force": ".traverse_force",
             "Traverse displacement": ".traverse_displ",
@@ -129,8 +169,15 @@ class EvaluationReader(ReaderDirectory):
             self.eps[index_path, :, :, 2] = strain["strain_xy"][:, :]
 
             hdf5.close()
+        return self
 
 
 if __name__ == "__main__":
-    r = EvaluationReader(os.path.join("data", "evaluation"))
-    r.read()
+    r_e = EvaluationReader(os.path.join("data", "evaluation"))
+    r_e.read()
+    r_a = AcquisitionReader(os.path.join("data", "acquisition"))
+    r_a.read()
+    r = Reader(
+        path_dir_acquisition=os.path.join("data", "acquisition"),
+        path_dir_evaluation=os.path.join("data", "evaluation"),
+    )
