@@ -17,7 +17,7 @@ import istra2py
 
 @pytest.fixture
 def reader():
-    return istra2py.Reader(os.path.join("data", "evaluation"))
+    return istra2py.EvaluationReader(os.path.join("data", "evaluation"))
 
 
 class Test_core:
@@ -26,11 +26,11 @@ class Test_core:
 
     def test_init_nonexisting_dir(self,):
         with pytest.raises(FileNotFoundError):
-            istra2py.Reader("data_not_existing_124376124")
+            istra2py.EvaluationReader("data_not_existing_124376124")
 
     def test_init_empty_dir(self,):
         with pytest.raises(istra2py.Istra2pyException):
-            istra2py.Reader("data_empty")
+            istra2py.EvaluationReader("data_empty")
 
     def test_list_available_keys(self, reader):
         reader._list_available_keys()

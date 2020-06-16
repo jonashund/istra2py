@@ -3,9 +3,10 @@
 
 import numpy as np
 import istra2py
+import os
 
 
-r = istra2py.Reader("data")
+r = istra2py.EvaluationReader(os.path.join("data", "evaluation"))
 # r._list_available_keys()
 r.read()
 

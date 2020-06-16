@@ -12,10 +12,10 @@ class Istra2pyException(Exception):
     pass
 
 
-class Reader:
-    def __init__(self, path_dir, file_ending=".hdf5"):
+class ReaderDirectory:
+    def __init__(self, path_dir):
         self.path_dir = path_dir
-        self._file_ending = file_ending
+        self._file_ending = ".hdf5"
 
         self._file_names_unsorted = self._find_files_in_dir()
         self._file_names = self._sort_file_names()
@@ -27,6 +27,59 @@ class Reader:
             pprint.pprint(d)
             return d
 
+    def _sort_file_names(self, verbose=True):
+        # Find numbers directly before file ending
+        regex = re.compile(r"(\d+)" + self._file_ending)
+        numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
+        ordered_indices = np.array(numbers).argsort()
+
+        file_names_sorted = np.array(self._file_names_unsorted)[
+            ordered_indices
+        ].tolist()
+
+        if verbose:
+            print("Sorted files are")
+            pprint.pprint(file_names_sorted)
+            print()
+
+        return file_names_sorted
+
+    def _find_files_in_dir(self, verbose=True):
+
+        names = []
+        for file in os.listdir(self.path_dir):
+            if file.endswith(self._file_ending):
+                names.append(file)
+        names.sort()
+
+        if not names:
+            raise Istra2pyException(
+                "No files with ending {} found in {}".format(
+                    self._file_ending, self.path_dir
+                )
+            )
+
+        if verbose:
+            print("Found the following files")
+            pprint.pprint(names)
+            print()
+
+        return names
+
+
+class Reader:
+    def __init__(self, path_dir_measurement=None, path_dir_evaluation=None):
+        if path_dir_measurement:
+            self.measurement = MeasurementReader(path_dir=path_dir_measurement).read()
+        if path_dir_evaluation:
+            self.evaluation = EvaluationReader(path_dir=path_dir_evaluation).read()
+
+
+class MeasurementReader(ReaderDirectory):
+    pass
+
+
+class EvaluationReader(ReaderDirectory):
     def read(self,):
 
         nbr_files = len(self.paths_files)
@@ -77,46 +130,7 @@ class Reader:
 
             hdf5.close()
 
-    def _sort_file_names(self, verbose=True):
-        # Find numbers directly before file ending
-        regex = re.compile(r"(\d+)" + self._file_ending)
-        numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
-        ordered_indices = np.array(numbers).argsort()
-
-        file_names_sorted = np.array(self._file_names_unsorted)[
-            ordered_indices
-        ].tolist()
-
-        if verbose:
-            print("Sorted files are")
-            pprint.pprint(file_names_sorted)
-            print()
-
-        return file_names_sorted
-
-    def _find_files_in_dir(self, verbose=True):
-
-        names = []
-        for file in os.listdir(self.path_dir):
-            if file.endswith(self._file_ending):
-                names.append(file)
-        names.sort()
-
-        if not names:
-            raise Istra2pyException(
-                "No files with ending {} found in {}".format(
-                    self._file_ending, self.path_dir
-                )
-            )
-
-        if verbose:
-            print("Found the following files")
-            pprint.pprint(names)
-            print()
-
-        return names
-
 
 if __name__ == "__main__":
-    r = Reader(os.path.join("data", "evaluation"))
+    r = EvaluationReader(os.path.join("data", "evaluation"))
     r.read()
