@@ -118,6 +118,5 @@ class Reader:
 
 
 if __name__ == "__main__":
-    r = Reader("data")
+    r = Reader(os.path.join("data", "evaluation"))
     r.read()
-

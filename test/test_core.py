@@ -17,7 +17,7 @@ import istra2py
 
 @pytest.fixture
 def reader():
-    return istra2py.Reader("data")
+    return istra2py.Reader(os.path.join("data", "evaluation"))
 
 
 class Test_core:
