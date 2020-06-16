@@ -1,0 +1,1 @@
+This is an excerpt of the first twelve frames of an export of all frames
