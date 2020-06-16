@@ -29,7 +29,7 @@ class ReaderDirectory:
             pprint.pprint(d)
             return d
 
-    def _sort_file_names(self, verbose=True):
+    def _sort_file_names(self, verbose=False):
         # Find numbers directly before file ending
         regex = re.compile(r"(\d+)" + self._file_ending)
         numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
@@ -46,7 +46,7 @@ class ReaderDirectory:
 
         return file_names_sorted
 
-    def _find_files_in_dir(self, verbose=True):
+    def _find_files_in_dir(self, verbose=False):
 
         names = []
         for file in os.listdir(self.path_dir):
@@ -76,9 +76,13 @@ class Reader:
         if path_dir_export:
             self.export = ExportReader(path_dir=path_dir_export).read()
 
+        # Combine acquisition and export
+            # Get conservative nbr_frames
+        # Compare analog signals
+
 
 class AcquisitionReader(ReaderDirectory):
-    def read(self,):
+    def read(self, verbose=False):
         key_main = "correlation_load_series_camera_1"
         key_images = "camera_pos_1"
         dtype_image = np.uint8
@@ -87,19 +91,22 @@ class AcquisitionReader(ReaderDirectory):
         with h5py.File(self.paths_files[0], "r") as first_file:
             nbr_pix_x, nbr_pix_y = first_file[key_main][key_images].shape
 
-        print("Extracted attributes:")
-        basics = {
-            "Traverse force": ".traverse_force",
-            "Traverse displacement": ".traverse_displ",
-            "Images": ".images",
-        }
-        pprint.pprint(basics)
-        print()
+        if verbose:
+            print("Extracted attributes:")
+            basics = {
+                "Traverse force": ".traverse_force",
+                "Traverse displacement": ".traverse_displ",
+                "Images": ".images",
+            }
+            pprint.pprint(basics)
+            print()
 
-        print("Indices of basics are: [nbr_files, nbr_x, nbr_y, nbr_components] with")
-        print("nbr_files = ", nbr_files)
-        print("nbr_pix_x = ", nbr_pix_x)
-        print("nbr_pix_y = ", nbr_pix_y)
+            print(
+                "Indices of basics are: [nbr_files, nbr_x, nbr_y, nbr_components] with"
+            )
+            print("nbr_files = ", nbr_files)
+            print("nbr_pix_x = ", nbr_pix_x)
+            print("nbr_pix_y = ", nbr_pix_y)
 
         self.traverse_force = np.zeros((nbr_files, 1), dtype=np.float64)
         self.traverse_displ = np.zeros((nbr_files, 1), dtype=np.float64)
@@ -120,27 +127,30 @@ class AcquisitionReader(ReaderDirectory):
 
 
 class ExportReader(ReaderDirectory):
-    def read(self,):
+    def read(self, verbose=False):
         nbr_files = self.nbr_files
 
         with h5py.File(self.paths_files[0], "r") as first_file:
             nbr_x, nbr_y = first_file["coordinates"]["coordinate_x"].shape
 
-        print("Extracted attributes:")
-        basics = {
-            "Traverse force": ".traverse_force",
-            "Traverse displacement": ".traverse_displ",
-            "Coordinates": ".x",
-            "Displacements": ".u",
-            "Strains": ".eps",
-        }
-        pprint.pprint(basics)
-        print()
+        if verbose:
+            print("Extracted attributes:")
+            basics = {
+                "Traverse force": ".traverse_force",
+                "Traverse displacement": ".traverse_displ",
+                "Coordinates": ".x",
+                "Displacements": ".u",
+                "Strains": ".eps",
+            }
+            pprint.pprint(basics)
+            print()
 
-        print("Indices of basics are: [nbr_files, nbr_x, nbr_y, nbr_components] with")
-        print("nbr_files = ", nbr_files)
-        print("nbr_x = ", nbr_x)
-        print("nbr_y = ", nbr_y)
+            print(
+                "Indices of basics are: [nbr_files, nbr_x, nbr_y, nbr_components] with"
+            )
+            print("nbr_files = ", nbr_files)
+            print("nbr_x = ", nbr_x)
+            print("nbr_y = ", nbr_y)
 
         self.traverse_force = np.zeros((nbr_files, 1), dtype=np.float64)
         self.traverse_displ = np.zeros((nbr_files, 1), dtype=np.float64)
