@@ -70,11 +70,11 @@ class ReaderDirectory:
 
 
 class Reader:
-    def __init__(self, path_dir_acquisition=None, path_dir_evaluation=None):
+    def __init__(self, path_dir_acquisition=None, path_dir_export=None):
         if path_dir_acquisition:
             self.acquisition = AcquisitionReader(path_dir=path_dir_acquisition).read()
-        if path_dir_evaluation:
-            self.evaluation = EvaluationReader(path_dir=path_dir_evaluation).read()
+        if path_dir_export:
+            self.export = ExportReader(path_dir=path_dir_export).read()
 
 
 class AcquisitionReader(ReaderDirectory):
@@ -119,7 +119,7 @@ class AcquisitionReader(ReaderDirectory):
         return self
 
 
-class EvaluationReader(ReaderDirectory):
+class ExportReader(ReaderDirectory):
     def read(self,):
         nbr_files = self.nbr_files
 
@@ -173,11 +173,11 @@ class EvaluationReader(ReaderDirectory):
 
 
 if __name__ == "__main__":
-    r_e = EvaluationReader(os.path.join("data", "evaluation"))
+    r_e = ExportReader(os.path.join("data", "export"))
     r_e.read()
     r_a = AcquisitionReader(os.path.join("data", "acquisition"))
     r_a.read()
     r = Reader(
         path_dir_acquisition=os.path.join("data", "acquisition"),
-        path_dir_evaluation=os.path.join("data", "evaluation"),
+        path_dir_export=os.path.join("data", "export"),
     )
