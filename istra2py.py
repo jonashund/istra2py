@@ -71,14 +71,20 @@ class ReaderDirectory:
 
 class Reader:
     def __init__(self, path_dir_acquisition=None, path_dir_export=None):
-        if path_dir_acquisition:
-            self.acquisition = AcquisitionReader(path_dir=path_dir_acquisition).read()
-        if path_dir_export:
-            self.export = ExportReader(path_dir=path_dir_export).read()
+        self.path_dir_acquisition = path_dir_acquisition
+        self.path_dir_export = path_dir_export
+
+    def read(self,):
+        if self.path_dir_acquisition:
+            self.acquisition = AcquisitionReader(path_dir=self.path_dir_acquisition)
+            self.acquisition.read()
+        if self.path_dir_export:
+            self.export = ExportReader(path_dir=self.path_dir_export)
+            self.export.read()
 
         # Combine acquisition and export
-            # Get conservative nbr_frames
-        # Compare analog signals
+        # Get conservative nbr_frames
+        # Compare analog signals or use the analog signals as Set-Entries
 
 
 class AcquisitionReader(ReaderDirectory):
@@ -123,7 +129,6 @@ class AcquisitionReader(ReaderDirectory):
             self.images[index_path, :, :] = image
 
             hdf5.close()
-        return self
 
 
 class ExportReader(ReaderDirectory):
@@ -179,15 +184,18 @@ class ExportReader(ReaderDirectory):
             self.eps[index_path, :, :, 2] = strain["strain_xy"][:, :]
 
             hdf5.close()
-        return self
 
 
 if __name__ == "__main__":
     r_e = ExportReader(os.path.join("data", "export"))
     r_e.read()
+
     r_a = AcquisitionReader(os.path.join("data", "acquisition"))
     r_a.read()
+
     r = Reader(
         path_dir_acquisition=os.path.join("data", "acquisition"),
         path_dir_export=os.path.join("data", "export"),
+        # path_dir_export=os.path.join("data", "export_skipping_some_frames"),
     )
+    r.read()
