@@ -25,41 +25,24 @@ class Reader:
             self.export = ExportReader(path_dir=self.path_dir_export)
             self.export.read()
 
-    def get_images_of_exported_frames(self,):
+    def get_images_of_exported_frames(self, verbose=True):
+
+        times_acq = np.concatenate(
+            (r.acquisition.traverse_displ, r.acquisition.traverse_force), axis=1
+        )
+        times_exp = np.concatenate(
+            (r.export.traverse_displ, r.export.traverse_force), axis=1
+        )
+
         self._available_positions = {
-            frozenset(pair): i
-            for i, pair in enumerate(
-                np.concatenate(
-                    (r.acquisition.traverse_displ, r.acquisition.traverse_force), axis=1
-                ),
-            )
+            frozenset(pair): i for i, pair in enumerate(times_acq)
         }
-
-        def get_position_if_available(key, index):
-            try:
-                return self._available_positions[key]
-            except KeyError as e:
-                print(
-                    "Key={} \ncorresponding to export data at index={} \n"
-                    "is not found in image-keys of acquisition data.\n"
-                    "self.export.images[index] will contain only np.nan\n".format(
-                        key, index
-                    )
-                )
-                return None
-
         self.export.image_indices = indices = [
-            get_position_if_available(key=frozenset(pair), index=i)
-            for i, pair in enumerate(
-                np.concatenate(
-                    (r.export.traverse_displ, r.export.traverse_force), axis=1
-                )
+            self._get_position_if_available(
+                key=frozenset(pair), index=i, verbose=verbose
             )
+            for i, pair in enumerate(times_exp)
         ]
-
-        # self.export.images = self.acquisition.images[tuple(self._indices), :]
-        # Does not handle "None" case, i.e. cases where no acquisition image
-        # is available
 
         nbr_frames_export = len(indices)
         images = np.full((nbr_frames_export, *self.acquisition.images[0].shape), np.nan)
@@ -68,6 +51,20 @@ class Reader:
                 images[i, :] = self.acquisition.images[index, :]
 
         self.export.images = images
+
+    def _get_position_if_available(self, key, index, verbose=True):
+        try:
+            return self._available_positions[key]
+        except KeyError as e:
+            if verbose:
+                print(
+                    "Key={} \ncorresponding to export data at index={} \n"
+                    "is not found in image-keys of acquisition data.\n"
+                    "self.export.images[index] will contain only np.nan\n".format(
+                        key, index
+                    )
+                )
+            return None
 
 
 class ReaderDirectory:
@@ -239,3 +236,4 @@ if __name__ == "__main__":
         # path_dir_export=os.path.join("data", "export_skipping_some_frames"),
     )
     r.read()
+    r.get_images_of_exported_frames()
