@@ -14,19 +14,19 @@ class Istra2pyException(Exception):
 
 class Reader:
     def __init__(self, path_dir_acquisition=None, path_dir_export=None, verbose=False):
-        self.verbose = verbose
+        self._verbose = verbose
         self.path_dir_acquisition = path_dir_acquisition
         self.path_dir_export = path_dir_export
 
     def read(self, identify_images_export=True):
         if self.path_dir_acquisition:
             self.acquisition = AcquisitionReader(
-                path_dir=self.path_dir_acquisition, verbose=self.verbose
+                path_dir=self.path_dir_acquisition, verbose=self._verbose
             )
             self.acquisition.read()
         if self.path_dir_export:
             self.export = ExportReader(
-                path_dir=self.path_dir_export, verbose=self.verbose
+                path_dir=self.path_dir_export, verbose=self._verbose
             )
             self.export.read()
         if identify_images_export:
@@ -74,7 +74,7 @@ class Reader:
 
 class ReaderDirectory:
     def __init__(self, path_dir, verbose=False):
-        self.verbose = verbose
+        self._verbose = verbose
         self.path_dir = path_dir
         self._file_ending = ".hdf5"
 
@@ -100,7 +100,7 @@ class ReaderDirectory:
             ordered_indices
         ].tolist()
 
-        if self.verbose:
+        if self._verbose:
             print("\nSorted files are")
             pprint.pprint(file_names_sorted)
             print()
@@ -122,7 +122,7 @@ class ReaderDirectory:
                 )
             )
 
-        if self.verbose:
+        if self._verbose:
             print("\nSearched dir={}".format(self.path_dir))
             print("\nFound the following files")
             pprint.pprint(names)
@@ -141,7 +141,7 @@ class AcquisitionReader(ReaderDirectory):
         with h5py.File(self.paths_files[0], "r") as first_file:
             nbr_pix_x, nbr_pix_y = first_file[key_main][key_images].shape
 
-        if self.verbose:
+        if self._verbose:
             print("\nExtracted attributes:")
             basics = {
                 "Traverse force": ".traverse_force",
@@ -182,7 +182,7 @@ class ExportReader(ReaderDirectory):
         with h5py.File(self.paths_files[0], "r") as first_file:
             nbr_x, nbr_y = first_file["coordinates"]["coordinate_x"].shape
 
-        if self.verbose:
+        if self._verbose:
             print("\nExtracted attributes:")
             basics = {
                 "Traverse force": ".traverse_force",
