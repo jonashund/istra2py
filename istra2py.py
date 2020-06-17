@@ -12,6 +12,64 @@ class Istra2pyException(Exception):
     pass
 
 
+class Reader:
+    def __init__(self, path_dir_acquisition=None, path_dir_export=None):
+        self.path_dir_acquisition = path_dir_acquisition
+        self.path_dir_export = path_dir_export
+
+    def read(self,):
+        if self.path_dir_acquisition:
+            self.acquisition = AcquisitionReader(path_dir=self.path_dir_acquisition)
+            self.acquisition.read()
+        if self.path_dir_export:
+            self.export = ExportReader(path_dir=self.path_dir_export)
+            self.export.read()
+
+    def get_images_of_exported_frames(self,):
+        self._available_positions = {
+            frozenset(pair): i
+            for i, pair in enumerate(
+                np.concatenate(
+                    (r.acquisition.traverse_displ, r.acquisition.traverse_force), axis=1
+                ),
+            )
+        }
+
+        def get_position_if_available(key, index):
+            try:
+                return self._available_positions[key]
+            except KeyError as e:
+                print(
+                    "Key={} \ncorresponding to export data at index={} \n"
+                    "is not found in image-keys of acquisition data.\n"
+                    "self.export.images[index] will contain only np.nan\n".format(
+                        key, index
+                    )
+                )
+                return None
+
+        self.export.image_indices = indices = [
+            get_position_if_available(key=frozenset(pair), index=i)
+            for i, pair in enumerate(
+                np.concatenate(
+                    (r.export.traverse_displ, r.export.traverse_force), axis=1
+                )
+            )
+        ]
+
+        # self.export.images = self.acquisition.images[tuple(self._indices), :]
+        # Does not handle "None" case, i.e. cases where no acquisition image
+        # is available
+
+        nbr_frames_export = len(indices)
+        images = np.full((nbr_frames_export, *self.acquisition.images[0].shape), np.nan)
+        for i, index in enumerate(indices):
+            if index is not None:
+                images[i, :] = self.acquisition.images[index, :]
+
+        self.export.images = images
+
+
 class ReaderDirectory:
     def __init__(self, path_dir):
         self.path_dir = path_dir
@@ -30,7 +88,7 @@ class ReaderDirectory:
             return d
 
     def _sort_file_names(self, verbose=False):
-        # Find numbers directly before file ending
+        # Find numbers directly in front of file ending
         regex = re.compile(r"(\d+)" + self._file_ending)
         numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
         ordered_indices = np.array(numbers).argsort()
@@ -67,24 +125,6 @@ class ReaderDirectory:
             print()
 
         return names
-
-
-class Reader:
-    def __init__(self, path_dir_acquisition=None, path_dir_export=None):
-        self.path_dir_acquisition = path_dir_acquisition
-        self.path_dir_export = path_dir_export
-
-    def read(self,):
-        if self.path_dir_acquisition:
-            self.acquisition = AcquisitionReader(path_dir=self.path_dir_acquisition)
-            self.acquisition.read()
-        if self.path_dir_export:
-            self.export = ExportReader(path_dir=self.path_dir_export)
-            self.export.read()
-
-        # Combine acquisition and export
-        # Get conservative nbr_frames
-        # Compare analog signals or use the analog signals as Set-Entries
 
 
 class AcquisitionReader(ReaderDirectory):
@@ -195,7 +235,7 @@ if __name__ == "__main__":
 
     r = Reader(
         path_dir_acquisition=os.path.join("data", "acquisition"),
-        path_dir_export=os.path.join("data", "export"),
+        path_dir_export=os.path.join("data", "export_skipping_some_frames"),
         # path_dir_export=os.path.join("data", "export_skipping_some_frames"),
     )
     r.read()
