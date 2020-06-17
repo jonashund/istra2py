@@ -17,15 +17,17 @@ class Reader:
         self.path_dir_acquisition = path_dir_acquisition
         self.path_dir_export = path_dir_export
 
-    def read(self,):
+    def read(self, identify_images_export=True):
         if self.path_dir_acquisition:
             self.acquisition = AcquisitionReader(path_dir=self.path_dir_acquisition)
             self.acquisition.read()
         if self.path_dir_export:
             self.export = ExportReader(path_dir=self.path_dir_export)
             self.export.read()
+        if identify_images_export:
+            self._get_images_of_exported_frames()
 
-    def get_images_of_exported_frames(self, verbose=True):
+    def _get_images_of_exported_frames(self, verbose=True):
 
         times_acq = np.concatenate(
             (r.acquisition.traverse_displ, r.acquisition.traverse_force), axis=1
@@ -235,5 +237,4 @@ if __name__ == "__main__":
         path_dir_export=os.path.join("data", "export_skipping_some_frames"),
         # path_dir_export=os.path.join("data", "export_skipping_some_frames"),
     )
-    r.read()
-    r.get_images_of_exported_frames()
+    r.read(identify_images_export=True)
