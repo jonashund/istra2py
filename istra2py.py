@@ -13,21 +13,26 @@ class Istra2pyException(Exception):
 
 
 class Reader:
-    def __init__(self, path_dir_acquisition=None, path_dir_export=None):
+    def __init__(self, path_dir_acquisition=None, path_dir_export=None, verbose=False):
+        self.verbose = verbose
         self.path_dir_acquisition = path_dir_acquisition
         self.path_dir_export = path_dir_export
 
     def read(self, identify_images_export=True):
         if self.path_dir_acquisition:
-            self.acquisition = AcquisitionReader(path_dir=self.path_dir_acquisition)
+            self.acquisition = AcquisitionReader(
+                path_dir=self.path_dir_acquisition, verbose=self.verbose
+            )
             self.acquisition.read()
         if self.path_dir_export:
-            self.export = ExportReader(path_dir=self.path_dir_export)
+            self.export = ExportReader(
+                path_dir=self.path_dir_export, verbose=self.verbose
+            )
             self.export.read()
         if identify_images_export:
             self._get_images_of_exported_frames()
 
-    def _get_images_of_exported_frames(self, verbose=True):
+    def _get_images_of_exported_frames(self,):
 
         times_acq = np.concatenate(
             (r.acquisition.traverse_displ, r.acquisition.traverse_force), axis=1
@@ -40,9 +45,7 @@ class Reader:
             frozenset(pair): i for i, pair in enumerate(times_acq)
         }
         self.export.image_indices = indices = [
-            self._get_position_if_available(
-                key=frozenset(pair), index=i, verbose=verbose
-            )
+            self._get_position_if_available(key=frozenset(pair), index=i)
             for i, pair in enumerate(times_exp)
         ]
 
@@ -70,7 +73,8 @@ class Reader:
 
 
 class ReaderDirectory:
-    def __init__(self, path_dir):
+    def __init__(self, path_dir, verbose=False):
+        self.verbose = verbose
         self.path_dir = path_dir
         self._file_ending = ".hdf5"
 
@@ -86,7 +90,7 @@ class ReaderDirectory:
             pprint.pprint(d)
             return d
 
-    def _sort_file_names(self, verbose=False):
+    def _sort_file_names(self,):
         # Find numbers directly in front of file ending
         regex = re.compile(r"(\d+)" + self._file_ending)
         numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
@@ -96,14 +100,14 @@ class ReaderDirectory:
             ordered_indices
         ].tolist()
 
-        if verbose:
-            print("Sorted files are")
+        if self.verbose:
+            print("\nSorted files are")
             pprint.pprint(file_names_sorted)
             print()
 
         return file_names_sorted
 
-    def _find_files_in_dir(self, verbose=False):
+    def _find_files_in_dir(self,):
 
         names = []
         for file in os.listdir(self.path_dir):
@@ -118,8 +122,9 @@ class ReaderDirectory:
                 )
             )
 
-        if verbose:
-            print("Found the following files")
+        if self.verbose:
+            print("\nSearched dir={}".format(self.path_dir))
+            print("\nFound the following files")
             pprint.pprint(names)
             print()
 
@@ -127,7 +132,7 @@ class ReaderDirectory:
 
 
 class AcquisitionReader(ReaderDirectory):
-    def read(self, verbose=False):
+    def read(self,):
         key_main = "correlation_load_series_camera_1"
         key_images = "camera_pos_1"
         dtype_image = np.uint8
@@ -136,8 +141,8 @@ class AcquisitionReader(ReaderDirectory):
         with h5py.File(self.paths_files[0], "r") as first_file:
             nbr_pix_x, nbr_pix_y = first_file[key_main][key_images].shape
 
-        if verbose:
-            print("Extracted attributes:")
+        if self.verbose:
+            print("\nExtracted attributes:")
             basics = {
                 "Traverse force": ".traverse_force",
                 "Traverse displacement": ".traverse_displ",
@@ -171,14 +176,14 @@ class AcquisitionReader(ReaderDirectory):
 
 
 class ExportReader(ReaderDirectory):
-    def read(self, verbose=False):
+    def read(self,):
         nbr_files = self.nbr_files
 
         with h5py.File(self.paths_files[0], "r") as first_file:
             nbr_x, nbr_y = first_file["coordinates"]["coordinate_x"].shape
 
-        if verbose:
-            print("Extracted attributes:")
+        if self.verbose:
+            print("\nExtracted attributes:")
             basics = {
                 "Traverse force": ".traverse_force",
                 "Traverse displacement": ".traverse_displ",
@@ -226,15 +231,23 @@ class ExportReader(ReaderDirectory):
 
 
 if __name__ == "__main__":
-    r_e = ExportReader(os.path.join("data", "export"))
-    r_e.read()
-
-    r_a = AcquisitionReader(os.path.join("data", "acquisition"))
-    r_a.read()
+    # r_e = ExportReader(os.path.join("data", "export"), verbose=True)
+    # r_e.read()
+    #
+    # r_a = AcquisitionReader(os.path.join("data", "acquisition"), verbose=True)
+    # r_a.read()
 
     r = Reader(
         path_dir_acquisition=os.path.join("data", "acquisition"),
-        path_dir_export=os.path.join("data", "export_skipping_some_frames"),
+        path_dir_export=os.path.join("data", "export"),
+        verbose=True
         # path_dir_export=os.path.join("data", "export_skipping_some_frames"),
     )
     r.read(identify_images_export=True)
+
+    print("\nr.__dict__.keys()")
+    print(r.__dict__.keys())
+    print("\nr.acquisition.__dict__.keys()")
+    print(r.acquisition.__dict__.keys())
+    print("\nr.export.__dict__.keys()")
+    print(r.export.__dict__.keys())
