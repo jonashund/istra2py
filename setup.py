@@ -8,7 +8,6 @@ setuptools.setup(
     description="Read hdf5 files exported from Istra4D digital image correlation with python",
     url="https://git.scc.kit.edu/ifm/werkstatt/istra2py",
     py_modules=["istra2py"],
-
     install_requires=["h5py", "numpy"],
     extras_require={'test': ["pytest", "matplotlib"]},
 
