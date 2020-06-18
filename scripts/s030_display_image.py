@@ -2,9 +2,15 @@
 # -*- coding: utf-8 -*-
 import matplotlib.pyplot as plt
 
-import numpy as np
 import istra2py
 import os
+import numpy as np
+
+np.set_printoptions(
+    linewidth=160,
+    precision=4,
+    # suppress=False,
+)
 
 dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 r = istra2py.Reader(

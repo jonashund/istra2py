@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import numpy as np
+import matplotlib.pyplot as plt
 import istra2py
 import os
+import numpy as np
 
+np.set_printoptions(
+    linewidth=160,
+    precision=4,
+    # suppress=False,
+)
 
 r = istra2py.ExportReader(os.path.join("data", "export"))
 # r._list_available_keys()
 r.read()
 
-import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(1, 1, figsize=(45, 45))
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import h5py
+import os
 import numpy as np
 
 np.set_printoptions(
@@ -9,8 +11,6 @@ np.set_printoptions(
     # suppress=False,
 )
 
-import h5py
-import os
 
 path = os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
@@ -34,8 +34,6 @@ print(displacements.keys())
 print()
 print(strain.keys())
 print()
-
-import numpy as np
 
 matrix = strain["strain_p1"]
 val = np.array(matrix).flatten()
