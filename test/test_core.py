@@ -21,6 +21,11 @@ def exportReader():
 
 
 @pytest.fixture
+def acquisitionReader():
+    return istra2py.AcquisitionReader(os.path.join("data", "acquisition"))
+
+
+@pytest.fixture
 def reader():
     return istra2py.Reader(
         path_dir_acquisition=os.path.join("data", "acquisition"),
@@ -40,33 +45,17 @@ def reader_skipping():
     # r.read(identify_images_export=False)
 
 
-@pytest.fixture
-def acquisitionReader():
-    return istra2py.AcquisitionReader(os.path.join("data", "acquisition"))
-
-
 class Test_core:
     def test_init(self, reader):
-        assert reader is not None
-        return reader
-
-    def test_read(self, reader):
-        reader.read(identify_images_export=False)
-
-    def test_read_and_identify_images(self, reader):
-        reader.read(identify_images_export=True)
-
-    def test_read_skipping_and_identify_images(self, reader_skipping):
-        reader = reader_skipping
-        reader.read(identify_images_export=True)
+        assert hasattr(reader, "read")
 
     def test_init_export(self, exportReader):
         reader = exportReader
-        assert reader is not None
+        assert hasattr(reader, "read")
 
     def test_init_acquisitionReader(self, acquisitionReader):
         reader = acquisitionReader
-        assert reader is not None
+        assert hasattr(reader, "read")
 
     def test_init_nonexisting_dir(self,):
         with pytest.raises(FileNotFoundError):
@@ -76,9 +65,24 @@ class Test_core:
         with pytest.raises(istra2py.Istra2pyException):
             istra2py.ExportReader("data_empty")
 
+    def test_read(self, reader):
+        reader.read(identify_images_export=False)
+        assert hasattr(reader, "export")
+        assert hasattr(reader, "acquisition")
+        assert not hasattr(reader.export, "images")
+
+    def test_read_and_identify_images(self, reader):
+        reader.read(identify_images_export=True)
+        assert hasattr(reader.export, "images")
+
+    def test_read_skipping_and_identify_images(self, reader_skipping):
+        reader = reader_skipping
+        reader.read(identify_images_export=True)
+        assert hasattr(reader.export, "images")
+
     def test_list_available_keys(self, exportReader):
         reader = exportReader
-        exportReader.list_available_keys()
+        assert reader.list_available_keys() is not None
 
 
 if __name__ == "__main__":
