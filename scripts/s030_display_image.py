@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import matplotlib.pyplot as plt
 
 import numpy as np
 import istra2py
@@ -14,8 +15,8 @@ r = istra2py.Reader(
 r.read()
 
 
-import matplotlib.pyplot as plt
-
 img = r.acquisition.images[3]
 imgplot = plt.imshow(img)
-plt.show()
+
+if __name__ == "__main__":
+    plt.show()

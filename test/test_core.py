@@ -8,6 +8,8 @@ import os
 import sys
 import pytest
 import h5py
+import runpy
+import pathlib
 
 sys.path.append(os.path.join(".."))
 import istra2py
@@ -100,8 +102,17 @@ class Test_core:
         assert type(reader.export.get_single_hdf5_file()) == h5py._hl.files.File
 
 
+################################
+# Scripts
 
+@pytest.mark.parametrize(
+    "script",
+    pathlib.Path(os.path.dirname(__file__), "..", "scripts").resolve().glob("*.py"),
+)
+def test_script_execution(script):
+    runpy.run_path(script)
+    assert True
 
 
 if __name__ == "__main__":
-    r = Test_core().test_init(reader=reader)
+    pass
