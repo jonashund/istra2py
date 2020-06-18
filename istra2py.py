@@ -18,7 +18,7 @@ class Reader:
         self.path_dir_acquisition = path_dir_acquisition
         self.path_dir_export = path_dir_export
 
-    def read(self, identify_images_export=True):
+    def read(self, identify_images_export=False):
         if self.path_dir_acquisition:
             self.acquisition = AcquisitionReader(
                 path_dir=self.path_dir_acquisition, verbose=self._verbose
@@ -35,10 +35,10 @@ class Reader:
     def _get_images_of_exported_frames(self,):
 
         times_acq = np.concatenate(
-            (r.acquisition.traverse_displ, r.acquisition.traverse_force), axis=1
+            (self.acquisition.traverse_displ, self.acquisition.traverse_force), axis=1
         )
         times_exp = np.concatenate(
-            (r.export.traverse_displ, r.export.traverse_force), axis=1
+            (self.export.traverse_displ, self.export.traverse_force), axis=1
         )
 
         self._available_positions = {
