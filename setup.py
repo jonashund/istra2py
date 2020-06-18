@@ -13,8 +13,8 @@ setuptools.setup(
     # module_data={"istra2py": ["data.bib"]},
     # scripts=["scripts/create_excel_view.py"],
     # include_package_data=True,
-    install_requires=["h5py"],
-    tests_require=["pytest"],
+    install_requires=["h5py", "numpy"],
+    tests_require=["pytest", "matplotlib"],
     # extras_require={
     #     ":python_version>'3.5'": ["pandas", "pybtex", "openpyxl", "matplotlib"]
     # },

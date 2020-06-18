@@ -1,4 +1,3 @@
 # Run tests
 `python -m pytest`
-`pytest`
-`pytest --pdb`
+`pytest --verbose --pdb`
