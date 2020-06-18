@@ -7,6 +7,7 @@
 import os
 import sys
 import pytest
+import h5py
 
 sys.path.append(os.path.join(".."))
 import istra2py
@@ -35,6 +36,12 @@ def reader():
 
 
 @pytest.fixture
+def reader_ready(reader):
+    reader.read(identify_images_export=True)
+    return reader
+
+
+@pytest.fixture
 def reader_skipping():
     return istra2py.Reader(
         path_dir_acquisition=os.path.join("data", "acquisition"),
@@ -45,7 +52,7 @@ def reader_skipping():
     # r.read(identify_images_export=False)
 
 
-class Test_core:
+class Test_init:
     def test_init(self, reader):
         assert hasattr(reader, "read")
 
@@ -71,6 +78,8 @@ class Test_core:
         assert hasattr(reader, "acquisition")
         assert not hasattr(reader.export, "images")
 
+
+class Test_read:
     def test_read_and_identify_images(self, reader):
         reader.read(identify_images_export=True)
         assert hasattr(reader.export, "images")
@@ -80,9 +89,18 @@ class Test_core:
         reader.read(identify_images_export=True)
         assert hasattr(reader.export, "images")
 
+
+class Test_core:
     def test_list_available_keys(self, exportReader):
         reader = exportReader
         assert reader.list_available_keys() is not None
+
+    def test_get_single_hdf5_file(self, reader_ready):
+        reader = reader_ready
+        assert type(reader.export.get_single_hdf5_file()) == h5py._hl.files.File
+
+
+
 
 
 if __name__ == "__main__":

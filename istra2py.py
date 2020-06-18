@@ -90,6 +90,9 @@ class ReaderDirectory:
             pprint.pprint(d)
             return d
 
+    def get_single_hdf5_file(self, index=1):
+        return h5py.File(self.paths_files[index], "r")
+
     def _sort_file_names(self,):
         # Find numbers directly in front of file ending
         regex = re.compile(r"(\d+)" + self._file_ending)
@@ -244,6 +247,8 @@ if __name__ == "__main__":
         # path_dir_export=os.path.join("data", "export_skipping_some_frames"),
     )
     r.read(identify_images_export=True)
+
+    hdf = r.export.get_single_hdf5_file(index=2)
 
     print("\nr.__dict__.keys()")
     print(r.__dict__.keys())
