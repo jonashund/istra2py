@@ -1,5 +1,7 @@
 import setuptools
 
+install_requires = ["h5py", "numpy"]
+
 setuptools.setup(
     name="istra2py",
     version="0.0.1",
@@ -13,8 +15,8 @@ setuptools.setup(
     # module_data={"istra2py": ["data.bib"]},
     # scripts=["scripts/create_excel_view.py"],
     # include_package_data=True,
-    install_requires=["h5py", "numpy"],
-    tests_require=["pytest", "matplotlib"],
+    install_requires=install_requires,
+    tests_require=install_requires + ["pytest", "matplotlib"],
     # extras_require={
     #     ":python_version>'3.5'": ["pandas", "pybtex", "openpyxl", "matplotlib"]
     # },
