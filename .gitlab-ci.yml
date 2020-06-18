@@ -5,9 +5,8 @@ test_3.6:
     stage: test
     image: "python:3.7"
     script:
-        - python setup.py test
-        - pip install pytest
-        - python -m pytest
+        - pip install -e .'[test]'
+        - pytest --verbose
 
 # test_2.7:
 #     stage: test
