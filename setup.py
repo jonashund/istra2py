@@ -9,7 +9,7 @@ setuptools.setup(
     url="https://git.scc.kit.edu/ifm/werkstatt/istra2py",
     py_modules=["istra2py"],
     install_requires=["h5py", "numpy"],
-    extras_require={'test': ["pytest", "matplotlib"]},
+    extras_require={'test': ["pytest", "matplotlib", "scipy"]},
 
     classifiers=[
         "Programming Language :: Python :: 3",
