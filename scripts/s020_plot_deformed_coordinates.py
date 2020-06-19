@@ -41,11 +41,11 @@ def plot_points(ax, x, y):
 r = istra2py.ExportReader(os.path.join("data", "export"))
 r.read()
 
-dir_output = os.path.join(os.path.dirname(__file__), "plots")
+dir_output = os.path.join(os.path.dirname(__file__), "plots_deformed")
 os.makedirs(dir_output, exist_ok=True)
 
 # Select frames
-index_frame_xy = 0
+index_frame_xy = 1
 index_frame_val = 1
 
 figsize = (15, 15)

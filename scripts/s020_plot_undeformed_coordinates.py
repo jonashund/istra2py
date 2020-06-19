@@ -41,7 +41,7 @@ def plot_points(ax, x, y):
 r = istra2py.ExportReader(os.path.join("data", "export"))
 r.read()
 
-dir_output = os.path.join(os.path.dirname(__file__), "plots")
+dir_output = os.path.join(os.path.dirname(__file__), "plots_undeformed")
 os.makedirs(dir_output, exist_ok=True)
 
 # Select frames
