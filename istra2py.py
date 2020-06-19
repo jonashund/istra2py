@@ -193,6 +193,7 @@ class ExportReader(ReaderDirectory):
                 "Coordinates": ".x",
                 "Displacements": ".u",
                 "Strains": ".eps",
+                "Mask": ".mask",
             }
             pprint.pprint(basics)
             print()
@@ -209,6 +210,7 @@ class ExportReader(ReaderDirectory):
         self.x = np.zeros((nbr_files, nbr_x, nbr_y, 2), dtype=np.float64)
         self.u = np.zeros((nbr_files, nbr_x, nbr_y, 2), dtype=np.float64)
         self.eps = np.zeros((nbr_files, nbr_x, nbr_y, 3), dtype=np.float64)
+        self.mask = np.zeros((nbr_files, nbr_x, nbr_y, 1), dtype=np.bool)
 
         for index_path, path in enumerate(self.paths_files):
             hdf5 = h5py.File(path, "r")
@@ -229,6 +231,9 @@ class ExportReader(ReaderDirectory):
             self.eps[index_path, :, :, 0] = strain["strain_xx"][:, :]
             self.eps[index_path, :, :, 1] = strain["strain_yy"][:, :]
             self.eps[index_path, :, :, 2] = strain["strain_xy"][:, :]
+
+            mask_coordinate = hdf5["coordinates"]['mask']
+            self.mask[index_path, :, :, 0] = mask_coordinate[:, :]
 
             hdf5.close()
 
