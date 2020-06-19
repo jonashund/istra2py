@@ -45,14 +45,14 @@ dir_output = os.path.join(os.path.dirname(__file__), "plots")
 os.makedirs(dir_output, exist_ok=True)
 
 # Select frames
-index_frame_xy = 0
+index_frame_xy = 1
 index_frame_val = 1
 
 figsize = (15, 15)
 
 # Select coordinates and data
 xx = r.x[index_frame_xy, ...]
-val = r.x[index_frame_val, ..., 1]
+val = r.eps[index_frame_val, ..., 1]
 
 ###################################
 # Create flat data
