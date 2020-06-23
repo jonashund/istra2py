@@ -405,3 +405,5 @@ TSWLatexianTemp*
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 
+# macOS system files
+.DS_Store
