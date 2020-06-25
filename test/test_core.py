@@ -11,7 +11,7 @@ import h5py
 import runpy
 import pathlib
 
-sys.path.append(os.path.join(".."))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),)
 import istra2py
 
 
@@ -104,6 +104,7 @@ class Test_core:
 
 ################################
 # Scripts
+
 
 @pytest.mark.parametrize(
     "script",
