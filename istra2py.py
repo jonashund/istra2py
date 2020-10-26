@@ -135,10 +135,12 @@ class ReaderDirectory:
 
 
 class AcquisitionReader(ReaderDirectory):
-    def read(self,):
-        key_main = "correlation_load_series_camera_1"
-        key_images = "camera_pos_1"
-        dtype_image = np.uint8
+    def read(
+        self,
+        key_main="correlation_load_series_camera_1",
+        key_images="camera_pos_1",
+        dtype_image=np.uint8,
+    ):
 
         nbr_files = self.nbr_files
         with h5py.File(self.paths_files[0], "r") as first_file:
@@ -232,7 +234,7 @@ class ExportReader(ReaderDirectory):
             self.eps[index_path, :, :, 1] = strain["strain_yy"][:, :]
             self.eps[index_path, :, :, 2] = strain["strain_xy"][:, :]
 
-            mask_coordinate = hdf5["coordinates"]['mask']
+            mask_coordinate = hdf5["coordinates"]["mask"]
             self.mask[index_path, :, :, 0] = mask_coordinate[:, :]
 
             hdf5.close()
