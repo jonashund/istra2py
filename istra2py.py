@@ -169,8 +169,8 @@ class AcquisitionReader(ReaderDirectory):
             hdf5 = h5py.File(path, "r")
 
             analog = hdf5[key_main]["analog_channels"][0]
-            self.traverse_force[index_path, 0] = analog[0]  # Is this correct?
-            self.traverse_displ[index_path, 0] = analog[1]  # Is this correct?
+            self.traverse_displ[index_path, 0] = analog[0]
+            self.traverse_force[index_path, 0] = analog[1]
 
             image = hdf5[key_main][key_images]
             self.images[index_path, :, :] = image
@@ -232,7 +232,7 @@ class ExportReader(ReaderDirectory):
             self.eps[index_path, :, :, 1] = strain["strain_yy"][:, :]
             self.eps[index_path, :, :, 2] = strain["strain_xy"][:, :]
 
-            mask_coordinate = hdf5["coordinates"]['mask']
+            mask_coordinate = hdf5["coordinates"]["mask"]
             self.mask[index_path, :, :, 0] = mask_coordinate[:, :]
 
             hdf5.close()
