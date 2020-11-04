@@ -13,12 +13,19 @@ class Istra2pyException(Exception):
 
 
 class Reader:
-    def __init__(self, path_dir_acquisition=None, path_dir_export=None, verbose=False):
+    def __init__(
+        self,
+        path_dir_acquisition=None,
+        path_dir_export=None,
+        path_dir_evaluation=None,
+        verbose=False,
+    ):
         self._verbose = verbose
         self.path_dir_acquisition = path_dir_acquisition
         self.path_dir_export = path_dir_export
+        self.path_dir_evaluation = path_dir_evaluation
 
-    def read(self, identify_images_export=False):
+    def read(self, identify_images_export=False, identify_images_evaluation=False):
         if self.path_dir_acquisition:
             self.acquisition = AcquisitionReader(
                 path_dir=self.path_dir_acquisition, verbose=self._verbose
@@ -29,8 +36,15 @@ class Reader:
                 path_dir=self.path_dir_export, verbose=self._verbose
             )
             self.export.read()
+        if self.path_dir_evaluation:
+            self.evaluation = EvaluationReader(
+                path_dir=self.path_dir_evaluation, verbose=self._verbose
+            )
+            self.evaluation.read()
         if identify_images_export:
             self._get_images_of_exported_frames()
+        if identify_images_evaluation:
+            self._get_images_of_evaluated_frames()
 
     def _get_images_of_exported_frames(self,):
 
@@ -56,6 +70,33 @@ class Reader:
                 images[i, :] = self.acquisition.images[index, :]
 
         self.export.images = images
+
+    def _get_images_of_evaluated_frames(self,):
+
+        times_acq = np.concatenate(
+            (self.acquisition.traverse_displ, self.acquisition.traverse_force), axis=1
+        )
+        times_eval = np.concatenate(
+            (self.evaluation.traverse_displ, self.evaluation.traverse_force), axis=1
+        )
+
+        self._available_positions = {
+            frozenset(pair): i for i, pair in enumerate(times_acq)
+        }
+        self.evaluation.image_indices = indices = [
+            self._get_position_if_available(key=frozenset(pair), index=i)
+            for i, pair in enumerate(times_eval)
+        ]
+
+        nbr_frames_evaluation = len(indices)
+        images = np.full(
+            (nbr_frames_evaluation, *self.acquisition.images[0].shape), np.nan
+        )
+        for i, index in enumerate(indices):
+            if index is not None:
+                images[i, :] = self.acquisition.images[index, :]
+
+        self.evaluation.images = images
 
     def _get_position_if_available(self, key, index, verbose=True):
         try:
@@ -218,8 +259,8 @@ class ExportReader(ReaderDirectory):
             hdf5 = h5py.File(path, "r")
 
             analog = hdf5["add_data"]["analog_channels"][0]
-            self.traverse_force[index_path, 0] = analog[0]  # Is this correct?
-            self.traverse_displ[index_path, 0] = analog[1]  # Is this correct?
+            self.traverse_displ[index_path, 0] = analog[0]
+            self.traverse_force[index_path, 0] = analog[1]
 
             coords = hdf5["coordinates"]
             self.x[index_path, :, :, 0] = coords["coordinate_x"][:, :]
@@ -233,6 +274,61 @@ class ExportReader(ReaderDirectory):
             self.eps[index_path, :, :, 0] = strain["strain_xx"][:, :]
             self.eps[index_path, :, :, 1] = strain["strain_yy"][:, :]
             self.eps[index_path, :, :, 2] = strain["strain_xy"][:, :]
+
+            mask_coordinate = hdf5["coordinates"]["mask"]
+            self.mask[index_path, :, :, 0] = mask_coordinate[:, :]
+
+            hdf5.close()
+
+
+class EvaluationReader(ReaderDirectory):
+    def read(self,):
+        nbr_files = self.nbr_files
+
+        with h5py.File(self.paths_files[0], "r") as first_file:
+            nbr_x, nbr_y = first_file["coordinates"]["coordinate_x"].shape
+
+        if self._verbose:
+            print("\nExtracted attributes:")
+            basics = {
+                "Traverse force": ".traverse_force",
+                "Traverse displacement": ".traverse_displ",
+                "Coordinates": ".x",
+                "Deformation gradient": ".def_grad",
+                "Mask": ".mask",
+            }
+            pprint.pprint(basics)
+            print()
+
+            print(
+                "Indices of basics are: [nbr_files, nbr_x, nbr_y, nbr_components] with"
+            )
+            print("nbr_files = ", nbr_files)
+            print("nbr_x = ", nbr_x)
+            print("nbr_y = ", nbr_y)
+
+        self.traverse_force = np.zeros((nbr_files, 1), dtype=np.float64)
+        self.traverse_displ = np.zeros((nbr_files, 1), dtype=np.float64)
+        self.x = np.zeros((nbr_files, nbr_x, nbr_y, 2), dtype=np.float64)
+        self.def_grad = np.zeros((nbr_files, nbr_x, nbr_y, 4), dtype=np.float64)
+        self.mask = np.zeros((nbr_files, nbr_x, nbr_y, 1), dtype=np.bool)
+
+        for index_path, path in enumerate(self.paths_files):
+            hdf5 = h5py.File(path, "r")
+
+            analog = hdf5["add_data"]["analog_channels"][0]
+            self.traverse_displ[index_path, 0] = analog[0]
+            self.traverse_force[index_path, 0] = analog[1]
+
+            coords = hdf5["coordinates"]
+            self.x[index_path, :, :, 0] = coords["coordinate_x"][:, :]
+            self.x[index_path, :, :, 1] = coords["coordinate_y"][:, :]
+
+            def_grad = hdf5["camera_pos_1"]
+            self.def_grad[index_path, :, :, 0] = def_grad["pixpos_dxdx"][:, :]
+            self.def_grad[index_path, :, :, 1] = def_grad["pixpos_dxdy"][:, :]
+            self.def_grad[index_path, :, :, 2] = def_grad["pixpos_dydx"][:, :]
+            self.def_grad[index_path, :, :, 3] = def_grad["pixpos_dydy"][:, :]
 
             mask_coordinate = hdf5["coordinates"]["mask"]
             self.mask[index_path, :, :, 0] = mask_coordinate[:, :]
