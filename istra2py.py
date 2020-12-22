@@ -46,7 +46,9 @@ class Reader:
         if identify_images_evaluation:
             self._get_images_of_evaluated_frames()
 
-    def _get_images_of_exported_frames(self,):
+    def _get_images_of_exported_frames(
+        self,
+    ):
 
         times_acq = np.concatenate(
             (self.acquisition.traverse_displ, self.acquisition.traverse_force), axis=1
@@ -71,7 +73,9 @@ class Reader:
 
         self.export.images = images
 
-    def _get_images_of_evaluated_frames(self,):
+    def _get_images_of_evaluated_frames(
+        self,
+    ):
 
         times_acq = np.concatenate(
             (self.acquisition.traverse_displ, self.acquisition.traverse_force), axis=1
@@ -134,7 +138,9 @@ class ReaderDirectory:
     def get_single_hdf5_file(self, index=1):
         return h5py.File(self.paths_files[index], "r")
 
-    def _sort_file_names(self,):
+    def _sort_file_names(
+        self,
+    ):
         # Find numbers directly in front of file ending
         regex = re.compile(r"(\d+)" + self._file_ending)
         numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
@@ -151,7 +157,9 @@ class ReaderDirectory:
 
         return file_names_sorted
 
-    def _find_files_in_dir(self,):
+    def _find_files_in_dir(
+        self,
+    ):
 
         names = []
         for file in os.listdir(self.path_dir):
@@ -222,7 +230,9 @@ class AcquisitionReader(ReaderDirectory):
 
 
 class ExportReader(ReaderDirectory):
-    def read(self,):
+    def read(
+        self,
+    ):
         nbr_files = self.nbr_files
 
         with h5py.File(self.paths_files[0], "r") as first_file:
@@ -282,7 +292,9 @@ class ExportReader(ReaderDirectory):
 
 
 class EvaluationReader(ReaderDirectory):
-    def read(self,):
+    def read(
+        self,
+    ):
         nbr_files = self.nbr_files
 
         with h5py.File(self.paths_files[0], "r") as first_file:
