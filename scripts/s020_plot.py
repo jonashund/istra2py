@@ -23,10 +23,18 @@ np.set_printoptions(
 def plot_grid(ax, x_matrix, y_matrix):
     # Unsused!
     ax.plot(
-        x_matrix, y_matrix, "k-", lw=0.5, alpha=0.5,
+        x_matrix,
+        y_matrix,
+        "k-",
+        lw=0.5,
+        alpha=0.5,
     )
     ax.plot(
-        x_matrix.T, y_matrix.T, "k-", lw=0.5, alpha=0.5,
+        x_matrix.T,
+        y_matrix.T,
+        "k-",
+        lw=0.5,
+        alpha=0.5,
     )
 
 
@@ -83,7 +91,12 @@ if True:
 
     fig, ax = plt.subplots(1, 1, figsize=figsize)
 
-    cs = ax.contourf(x, y, z, cmap="viridis",)
+    cs = ax.contourf(
+        x,
+        y,
+        z,
+        cmap="viridis",
+    )
     fig.colorbar(cs, ax=ax, shrink=0.9, format="%.0e")
     # cs = ax.contour(x, y, z, cmap="viridis",)
 
@@ -136,7 +149,12 @@ if True:
     y = xx[plotable_slice][:, :, 1]
     val = val[plotable_slice[0:-1]][:, :]
 
-    cs = ax.contourf(x, y, val, cmap="viridis",)
+    cs = ax.contourf(
+        x,
+        y,
+        val,
+        cmap="viridis",
+    )
 
     # Plot grid based on discretization
     # plot_grid(ax=ax, x_matrix=x, y_matrix=y)
