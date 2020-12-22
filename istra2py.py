@@ -310,6 +310,7 @@ class EvaluationReader(ReaderDirectory):
         self.traverse_force = np.zeros((nbr_files, 1), dtype=np.float64)
         self.traverse_displ = np.zeros((nbr_files, 1), dtype=np.float64)
         self.x = np.zeros((nbr_files, nbr_x, nbr_y, 2), dtype=np.float64)
+        self.pix_x = np.zeros((nbr_files, nbr_x, nbr_y, 2), dtype=np.float64)
         self.def_grad = np.zeros((nbr_files, nbr_x, nbr_y, 4), dtype=np.float64)
         self.mask = np.zeros((nbr_files, nbr_x, nbr_y, 1), dtype=np.bool)
 
@@ -329,6 +330,10 @@ class EvaluationReader(ReaderDirectory):
             self.def_grad[index_path, :, :, 1] = def_grad["pixpos_dxdy"][:, :]
             self.def_grad[index_path, :, :, 2] = def_grad["pixpos_dydx"][:, :]
             self.def_grad[index_path, :, :, 3] = def_grad["pixpos_dydy"][:, :]
+
+            pix_pos = hdf5["camera_pos_1"]
+            self.pix_x[index_path, :, :, 0] = pix_pos["pixpos_x"][:, :]
+            self.pix_x[index_path, :, :, 1] = pix_pos["pixpos_y"][:, :]
 
             mask_coordinate = hdf5["coordinates"]["mask"]
             self.mask[index_path, :, :, 0] = mask_coordinate[:, :]
