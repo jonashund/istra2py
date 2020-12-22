@@ -57,7 +57,7 @@ val = r.eps[index_frame_val, ..., 1]
 ###################################
 # Create flat data
 
-# Identify positions of DIC-grip-points where identification failed
+# Identify positions of DIC-grid-points where identification failed
 # i.e. where coordinates are near zero
 mask = np.linalg.norm(xx, axis=-1) > 1e-12
 
