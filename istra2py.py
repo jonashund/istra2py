@@ -46,7 +46,9 @@ class Reader:
         if identify_images_evaluation:
             self._get_images_of_evaluated_frames()
 
-    def _get_images_of_exported_frames(self,):
+    def _get_images_of_exported_frames(
+        self,
+    ):
 
         times_acq = np.concatenate(
             (self.acquisition.traverse_displ, self.acquisition.traverse_force), axis=1
@@ -71,7 +73,9 @@ class Reader:
 
         self.export.images = images
 
-    def _get_images_of_evaluated_frames(self,):
+    def _get_images_of_evaluated_frames(
+        self,
+    ):
 
         times_acq = np.concatenate(
             (self.acquisition.traverse_displ, self.acquisition.traverse_force), axis=1
@@ -134,7 +138,9 @@ class ReaderDirectory:
     def get_single_hdf5_file(self, index=1):
         return h5py.File(self.paths_files[index], "r")
 
-    def _sort_file_names(self,):
+    def _sort_file_names(
+        self,
+    ):
         # Find numbers directly in front of file ending
         regex = re.compile(r"(\d+)" + self._file_ending)
         numbers = [int(regex.findall(name)[0]) for name in self._file_names_unsorted]
@@ -151,7 +157,9 @@ class ReaderDirectory:
 
         return file_names_sorted
 
-    def _find_files_in_dir(self,):
+    def _find_files_in_dir(
+        self,
+    ):
 
         names = []
         for file in os.listdir(self.path_dir):
@@ -222,7 +230,9 @@ class AcquisitionReader(ReaderDirectory):
 
 
 class ExportReader(ReaderDirectory):
-    def read(self,):
+    def read(
+        self,
+    ):
         nbr_files = self.nbr_files
 
         with h5py.File(self.paths_files[0], "r") as first_file:
@@ -282,7 +292,9 @@ class ExportReader(ReaderDirectory):
 
 
 class EvaluationReader(ReaderDirectory):
-    def read(self,):
+    def read(
+        self,
+    ):
         nbr_files = self.nbr_files
 
         with h5py.File(self.paths_files[0], "r") as first_file:
@@ -310,6 +322,7 @@ class EvaluationReader(ReaderDirectory):
         self.traverse_force = np.zeros((nbr_files, 1), dtype=np.float64)
         self.traverse_displ = np.zeros((nbr_files, 1), dtype=np.float64)
         self.x = np.zeros((nbr_files, nbr_x, nbr_y, 2), dtype=np.float64)
+        self.pix_x = np.zeros((nbr_files, nbr_x, nbr_y, 2), dtype=np.float64)
         self.def_grad = np.zeros((nbr_files, nbr_x, nbr_y, 4), dtype=np.float64)
         self.mask = np.zeros((nbr_files, nbr_x, nbr_y, 1), dtype=np.bool)
 
@@ -329,6 +342,10 @@ class EvaluationReader(ReaderDirectory):
             self.def_grad[index_path, :, :, 1] = def_grad["pixpos_dxdy"][:, :]
             self.def_grad[index_path, :, :, 2] = def_grad["pixpos_dydx"][:, :]
             self.def_grad[index_path, :, :, 3] = def_grad["pixpos_dydy"][:, :]
+
+            pix_pos = hdf5["camera_pos_1"]
+            self.pix_x[index_path, :, :, 0] = pix_pos["pixpos_x"][:, :]
+            self.pix_x[index_path, :, :, 1] = pix_pos["pixpos_y"][:, :]
 
             mask_coordinate = hdf5["coordinates"]["mask"]
             self.mask[index_path, :, :, 0] = mask_coordinate[:, :]
