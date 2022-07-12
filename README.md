@@ -1,10 +1,10 @@
 # istra2py
 
-Read hdf5 files exported from Istra4D digital image correlation with python
+Read hdf5 files exported from Istra4D (Version 4.3.0.1) digital image correlation with python.
 
 
 ## Install
-- Install Python (e.g. [Install Anaconda])
+- Install Python (e.g. [Install Anaconda](https://docs.anaconda.com/anaconda/install/))
 - Install package
 	- Non-development mode `python3 setup.py install`
 - Remove package
