@@ -5,12 +5,11 @@ setuptools.setup(
     version="0.0.1",
     author="Julian Karl Bauer, Jonas Hund",
     author_email="juliankarlbauer@gmx.de, jonas.hund@gmx.de",
-    description="Read hdf5 files exported from Istra4D digital image correlation with python",
-    url="https://git.scc.kit.edu/ifm/werkstatt/istra2py",
+    description="Read hdf5 files exported from Istra4D (Version 4.3.0.1) digital image correlation with python",
+    url="https://github.com/jonashund/istra2py",
     py_modules=["istra2py"],
     install_requires=["h5py", "numpy"],
-    extras_require={'test': ["pytest", "matplotlib", "scipy"]},
-
+    extras_require={"test": ["pytest", "matplotlib", "scipy"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
